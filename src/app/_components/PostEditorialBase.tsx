@@ -68,7 +68,6 @@ const PostEditorialBase: React.FC<Props> = (props) => {
           value={nowCoverImageURL}
           onChange={updateNowCoverImageURL}
           placeholder="カバーイメージのURLを記入してください"
-          required
         />
       </div>
 

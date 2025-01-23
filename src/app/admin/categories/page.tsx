@@ -2,23 +2,28 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { twMerge } from "tailwind-merge";
 import { Category } from "@/app/_types/Category";
-import { validateCategoryName } from "@/app/utils/validateCategoryName";
 import { CategoryApiResponse } from "@/app/_types/CategoryApiResponse";
 import Loading from "@/app/_components/Loading";
 import Link from "next/link";
+import CategorySearch from "@/app/_components/CategorySearch";
+import LoadingPopup from "@/app/_components/LoadingPopup";
 
 // カテゴリの編集・削除のページ
 const Page: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [fetchErrorMsg, setFetchErrorMsg] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // ページの移動に使用するフック
   const router = useRouter();
 
   // カテゴリ配列 (State)。取得中と取得失敗時は null、既存カテゴリが0個なら []
   const [categories, setCategories] = useState<Category[] | null>(null);
+  const [searchQuery, setSearchQuery] = useState(""); // 検索クエリの状態管理
+  const [filteredCategories, setFilteredCategories] = useState<
+    Category[] | null
+  >(null);
 
   // ウェブAPI (/api/categories) からカテゴリの一覧をフェッチする関数の定義
   const fetchCategories = async () => {
@@ -42,12 +47,12 @@ const Page: React.FC = () => {
 
       // レスポンスのボディをJSONとして読み取りカテゴリ配列 (State) にセット
       const apiResBody = (await res.json()) as CategoryApiResponse[];
-      setCategories(
-        apiResBody.map((body) => ({
-          id: body.id,
-          name: body.name,
-        }))
-      );
+      const fetchedCategories = apiResBody.map((body) => ({
+        id: body.id,
+        name: body.name,
+      }));
+      setCategories(fetchedCategories);
+      setFilteredCategories(fetchedCategories);
     } catch (error) {
       const errorMsg =
         error instanceof Error
@@ -68,6 +73,8 @@ const Page: React.FC = () => {
 
   // 「削除」のボタンが押下されたときにコールされる関数
   const handleDelete = async (id: string) => {
+    setIsDeleting(true);
+    if (isDeleting) return;
     const currentCategory = categories?.find((category) => category.id === id);
     if (!currentCategory) {
       console.error("カテゴリが見つかりません");
@@ -90,7 +97,7 @@ const Page: React.FC = () => {
         throw new Error(`${res.status}: ${res.statusText}`);
       }
       // カテゴリの一覧ページに移動
-      router.replace("/admin/categories");
+      router.replace("/admin/categories/");
     } catch (error) {
       const errorMsg =
         error instanceof Error
@@ -98,6 +105,18 @@ const Page: React.FC = () => {
           : `予期せぬエラーが発生しました\n${error}`;
       console.error(errorMsg);
       window.alert(errorMsg);
+    }
+    setIsDeleting(false);
+    // 画面をリロード
+    window.location.reload();
+  };
+
+  const handleSearch = () => {
+    if (categories) {
+      const filtered = categories.filter((category) =>
+        category.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredCategories(filtered);
     }
   };
 
@@ -113,10 +132,24 @@ const Page: React.FC = () => {
 
   return (
     <main>
+      {isDeleting && <LoadingPopup />}
+
       <div className="mb-4 text-2xl font-bold">カテゴリの一覧</div>
+      <div className="mb-4">
+        <Link href="/admin/categories/new">
+          <button className="rounded bg-green-500 px-3 py-1 text-white">
+            新規追加
+          </button>
+        </Link>
+      </div>
+      <CategorySearch
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleSearch={handleSearch}
+      />
       <div className="space-y-3">
-        {categories ? (
-          categories.map((category) => (
+        {filteredCategories ? (
+          filteredCategories.map((category) => (
             <div
               key={category.id}
               className="rounded-md border border-slate-400 p-3"

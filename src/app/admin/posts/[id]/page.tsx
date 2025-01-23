@@ -195,6 +195,35 @@ const Page: React.FC = () => {
     }
   };
 
+  const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // この処理をしないとページがリロードされるので注意
+    // prettier-ignore
+    if (!window.confirm(`本当に削除しますか？`)) {
+      return;
+    }
+
+    try {
+      const requestUrl = `/api/admin/posts/${id}`;
+      const res = await fetch(requestUrl, {
+        method: "DELETE",
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        throw new Error(`${res.status}: ${res.statusText}`);
+      }
+      // カテゴリの一覧ページに移動
+      router.replace("/admin/posts");
+    } catch (error) {
+      const errorMsg =
+        error instanceof Error
+          ? `カテゴリのDELETEリクエストに失敗しました\n${error.message}`
+          : `予期せぬエラーが発生しました\n${error}`;
+      console.error(errorMsg);
+      window.alert(errorMsg);
+    }
+  };
+
   if (isLoading) {
     return <Loading />;
   }
@@ -224,17 +253,23 @@ const Page: React.FC = () => {
           switchCategoryState={switchCategoryState}
         />
 
-        <div className="flex justify-end">
+        <div className="mt-2 flex justify-between space-x-2">
+          <button
+            className="rounded-md bg-red-500 px-3 py-1 font-bold text-white hover:bg-red-600"
+            onClick={handleDelete}
+          >
+            削除
+          </button>
           <button
             type="submit"
             className={twMerge(
-              "rounded-md px-5 py-1 font-bold",
+              "rounded-md px-3 py-1 font-bold",
               "bg-indigo-500 text-white hover:bg-indigo-600",
               "disabled:cursor-not-allowed"
             )}
             disabled={isSubmitting}
           >
-            記事を更新
+            更新
           </button>
         </div>
       </form>
