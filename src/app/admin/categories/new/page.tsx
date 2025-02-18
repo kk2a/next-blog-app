@@ -8,6 +8,7 @@ import Loading from "@/app/_components/Loading";
 import LoadingPopup from "@/app/_components/LoadingPopup";
 import CategoryEditorialName from "@/app/_components/CategoryEditorialName";
 import CategoryExisting from "@/app/_components/CategoryExisting";
+import { useAuth } from "@/app/_hooks/useAuth";
 
 // カテゴリの新規作成 (追加) のページ
 const Page: React.FC = () => {
@@ -19,6 +20,8 @@ const Page: React.FC = () => {
 
   // カテゴリ配列 (State)。取得中と取得失敗時は null、既存カテゴリが0個なら []
   const [categories, setCategories] = useState<Category[] | null>(null);
+
+  const { token } = useAuth();
 
   // ウェブAPI (/api/categories) からカテゴリの一覧をフェッチする関数の定義
   const fetchCategories = async () => {
@@ -77,12 +80,17 @@ const Page: React.FC = () => {
 
     // ▼▼ 追加 ウェブAPI (/api/admin/categories) にPOSTリクエストを送信する処理
     try {
+      if (!token) {
+        window.alert("予期せぬ動作：トークンが取得できません。");
+        return;
+      }
       const requestUrl = "/api/admin/categories";
       const res = await fetch(requestUrl, {
         method: "POST",
         cache: "no-store",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token,
         },
         body: JSON.stringify({ name: newCategoryName }),
       });

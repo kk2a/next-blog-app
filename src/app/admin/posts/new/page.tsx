@@ -7,6 +7,7 @@ import Loading from "@/app/_components/Loading";
 import LoadingPopup from "@/app/_components/LoadingPopup";
 import { SelectableCategory } from "@/app/_types/SelectableCategory";
 import PostEditorialBase from "@/app/_components/PostEditorialBase";
+import { useAuth } from "@/app/_hooks/useAuth"; // ◀ 追加
 
 // 投稿記事の新規作成のページ
 const Page: React.FC = () => {
@@ -24,6 +25,8 @@ const Page: React.FC = () => {
   const [checkableCategories, setCheckableCategories] = useState<
     SelectableCategory[] | null
   >(null);
+
+  const { token } = useAuth();
 
   // コンポーネントがマウントされたとき (初回レンダリングのとき) に1回だけ実行
   useEffect(() => {
@@ -106,6 +109,10 @@ const Page: React.FC = () => {
 
     // ▼▼ 追加 ウェブAPI (/api/admin/posts) にPOSTリクエストを送信する処理
     try {
+      if (!token) {
+        window.alert("予期せぬ動作：トークンが取得できません。");
+        return;
+      }
       const requestBody = {
         title: newTitle,
         content: newContent,
@@ -121,6 +128,7 @@ const Page: React.FC = () => {
         cache: "no-store",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token,
         },
         body: JSON.stringify(requestBody),
       });

@@ -4,7 +4,14 @@ import { Post } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { PostPostRequestBody } from "@/app/_types/PostPostRequestBody";
 
+import { supabase } from "@/utils/supabase"; // ◀ 追加
+
 export const POST = async (req: NextRequest) => {
+  const token = req.headers.get("Authorization") ?? "";
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 401 });
+
   try {
     const requestBody: PostPostRequestBody = await req.json();
     const { title, content, coverImageURL, categoryIds } = requestBody;

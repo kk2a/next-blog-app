@@ -10,6 +10,7 @@ import PostSearch from "@/app/_components/PostSearch";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
 import SortButton from "@/app/_components/SortButton";
+import { useAuth } from "@/app/_hooks/useAuth";
 
 const AdminPostsPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -25,7 +26,10 @@ const AdminPostsPage = () => {
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [isAscending, setIsAscending] = useState<boolean>(true);
 
+  const { token } = useAuth();
+
   useEffect(() => {
+    console.log("useEffect");
     // 投稿記事のデータを取得する関数
     const fetchPosts = async () => {
       const response = await fetch("/api/posts");
@@ -61,8 +65,15 @@ const AdminPostsPage = () => {
     if (confirm("本当に削除しますか？")) {
       setIsDeleting(true);
       try {
+        if (!token) {
+          window.alert("予期せぬ動作：トークンができません。");
+          return;
+        }
         const res = await fetch(`/api/admin/posts/${id}`, {
           method: "DELETE",
+          headers: {
+            Authorization: token,
+          },
         });
 
         if (!res.ok) {
@@ -77,7 +88,11 @@ const AdminPostsPage = () => {
         window.alert(errorMsg);
       }
       setIsDeleting(false);
-      setPosts((posts as PostSummaryType[]).filter((post) => post.id !== id));
+      const updatedPosts = (posts as PostSummaryType[]).filter(
+        (post) => post.id !== id
+      );
+      setPosts(updatedPosts);
+      setFilteredPosts(updatedPosts); // 追加
     }
   };
 

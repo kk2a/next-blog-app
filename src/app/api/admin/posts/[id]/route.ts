@@ -3,10 +3,17 @@ import { NextResponse, NextRequest } from "next/server";
 import { Post } from "@prisma/client";
 import { PostPutRequestBody } from "@/app/_types/PostPutRequestBody";
 
+import { supabase } from "@/utils/supabase";
+
 export const DELETE = async (
   req: NextRequest,
   { params: { id } }: { params: { id: string } }
 ) => {
+  const token = req.headers.get("Authorization") ?? "";
+  const { data, error } = await supabase.auth.getUser(token);
+  // if (error)
+  //   return NextResponse.json({ error: error.message }, { status: 401 });
+
   try {
     const post = await prisma.post.delete({
       where: { id },
@@ -25,6 +32,11 @@ export const PUT = async (
   req: NextRequest,
   { params: { id } }: { params: { id: string } }
 ) => {
+  const token = req.headers.get("Authorization") ?? "";
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 401 });
+
   try {
     const { title, content, coverImageURL, categoryIds }: PostPutRequestBody =
       await req.json();

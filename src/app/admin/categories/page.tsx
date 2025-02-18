@@ -8,6 +8,7 @@ import Loading from "@/app/_components/Loading";
 import Link from "next/link";
 import CategorySearch from "@/app/_components/CategorySearch";
 import LoadingPopup from "@/app/_components/LoadingPopup";
+import { useAuth } from "@/app/_hooks/useAuth";
 
 // カテゴリの編集・削除のページ
 const Page: React.FC = () => {
@@ -24,6 +25,8 @@ const Page: React.FC = () => {
   const [filteredCategories, setFilteredCategories] = useState<
     Category[] | null
   >(null);
+
+  const { token } = useAuth();
 
   // ウェブAPI (/api/categories) からカテゴリの一覧をフェッチする関数の定義
   const fetchCategories = async () => {
@@ -87,10 +90,17 @@ const Page: React.FC = () => {
     }
 
     try {
+      if (!token) {
+        window.alert("予期せぬ動作：トークンができません。");
+        return;
+      }
       const requestUrl = `/api/admin/categories/${id}`;
       const res = await fetch(requestUrl, {
         method: "DELETE",
         cache: "no-store",
+        headers: {
+          Authorization: token,
+        },
       });
 
       if (!res.ok) {
@@ -107,8 +117,11 @@ const Page: React.FC = () => {
       window.alert(errorMsg);
     }
     setIsDeleting(false);
-    // 画面をリロード
-    window.location.reload();
+    const updateCategories = (categories as Category[]).filter(
+      (category) => category.id !== id
+    );
+    setCategories(updateCategories);
+    setFilteredCategories(updateCategories);
   };
 
   const handleSearch = () => {
