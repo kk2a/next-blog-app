@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { postSelectOptions } from "@/app/config/postSelectOptions";
 
+export const revalidate = 0;
+
 export const GET = async (
   reg: NextRequest,
   { params: { id } }: { params: { id: string } }

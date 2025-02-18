@@ -6,6 +6,8 @@ import { postSelectOptions } from "@/app/config/postSelectOptions";
 // postSelectOptionsを指定したときの戻り値の「型」を定義
 type PostWithCategories = Prisma.PostGetPayload<typeof postSelectOptions>;
 
+export const revalidate = 0;
+
 export const GET = async (req: NextRequest) => {
   try {
     const posts: PostWithCategories[] = await prisma.post.findMany({

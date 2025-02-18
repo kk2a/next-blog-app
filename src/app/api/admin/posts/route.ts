@@ -6,6 +6,8 @@ import { PostPostRequestBody } from "@/app/_types/PostPostRequestBody";
 
 import { supabase } from "@/utils/supabase"; // ◀ 追加
 
+export const revalidate = 0;
+
 export const POST = async (req: NextRequest) => {
   const token = req.headers.get("Authorization") ?? "";
   const { data, error } = await supabase.auth.getUser(token);
