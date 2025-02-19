@@ -17,7 +17,12 @@ const Page: React.FC = () => {
 
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
-  const [newCoverImageURL, setNewCoverImageURL] = useState("");
+  const [newCoverImageURL, setNewCoverImageURL] = useState<
+    string | undefined
+  >();
+  const [newCoverImageKey, setNewCoverImageKey] = useState<
+    string | undefined
+  >();
 
   const router = useRouter();
 
@@ -96,10 +101,10 @@ const Page: React.FC = () => {
     setNewContent(e.target.value);
   };
 
-  const updateNewCoverImageURL = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // ここにカバーイメージURLのバリデーション処理を追加する
-    setNewCoverImageURL(e.target.value);
-  };
+  // const updateNewCoverImageURL = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   // ここにカバーイメージURLのバリデーション処理を追加する
+  //   setNewCoverImageURL(e.target.value);
+  // };
 
   // フォームの送信処理
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -116,7 +121,7 @@ const Page: React.FC = () => {
       const requestBody = {
         title: newTitle,
         content: newContent,
-        coverImageURL: newCoverImageURL,
+        coverImageKey: newCoverImageKey,
         categoryIds: checkableCategories
           ? checkableCategories.filter((c) => c.isSelect).map((c) => c.id)
           : [],
@@ -174,8 +179,8 @@ const Page: React.FC = () => {
           updateNowTitle={updateNewTitle}
           nowContent={newContent}
           updateNowContent={updateNewContent}
-          nowCoverImageURL={newCoverImageURL}
-          updateNowCoverImageURL={updateNewCoverImageURL}
+          nowCoverImageKey={newCoverImageKey}
+          updateNowCoverImageKey={setNewCoverImageKey}
           checkableCategories={checkableCategories}
           switchCategoryState={switchCategoryState}
         />

@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { postSelectOptions } from "@/app/config/postSelectOptions";
+import { PostGetApiResponse } from "@/app/_types/PostGetApiResponse";
 
 export const revalidate = 0;
 
@@ -9,10 +10,11 @@ export const GET = async (
   { params: { id } }: { params: { id: string } }
 ) => {
   try {
-    const post = await prisma.post.findUnique({
+    const post = (await prisma.post.findUnique({
       ...postSelectOptions,
       where: { id },
-    });
+    })) as PostGetApiResponse | null;
+    console.log(post);
     if (!post) {
       return NextResponse.json(
         { error: `id='${id}'の投稿記事は見つかりませんでした` },

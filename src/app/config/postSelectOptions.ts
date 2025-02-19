@@ -5,7 +5,7 @@ export const postSelectOptions = {
     content: true,
     createdAt: true,
     updatedAt: true,
-    coverImageURL: true,
+    coverImageKey: true,
     categories: {
       select: {
         category: {

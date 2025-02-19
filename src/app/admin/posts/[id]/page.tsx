@@ -6,7 +6,7 @@ import { CategoryApiResponse } from "@/app/_types/CategoryApiResponse";
 import Loading from "@/app/_components/Loading";
 import LoadingPopup from "@/app/_components/LoadingPopup";
 import { SelectableCategory } from "@/app/_types/SelectableCategory";
-import { PostApiResponse } from "@/app/_types/PostApiResponse";
+import { PostGetApiResponse } from "@/app/_types/PostGetApiResponse";
 import { PostPutRequestBody } from "@/app/_types/PostPutRequestBody";
 import PostEditorialBase from "@/app/_components/PostEditorialBase";
 import { useAuth } from "@/app/_hooks/useAuth";
@@ -19,7 +19,9 @@ const Page: React.FC = () => {
 
   const [nowTitle, setNowTitle] = useState("");
   const [nowContent, setNowContent] = useState("");
-  const [nowCoverImageURL, setNowCoverImageURL] = useState("");
+  const [nowCoverImageKey, setNowCoverImageKey] = useState<
+    string | undefined
+  >();
 
   const router = useRouter();
 
@@ -95,10 +97,10 @@ const Page: React.FC = () => {
           throw new Error(`${res.status}: ${res.statusText}`); // -> catch節に移動
         }
 
-        const postData = (await res.json()) as PostApiResponse;
+        const postData = (await res.json()) as PostGetApiResponse;
         setNowTitle(postData.title);
         setNowContent(postData.content);
-        setNowCoverImageURL(postData.coverImageURL);
+        setNowCoverImageKey(postData.coverImageKey);
         if (initCheckableCategories && postData.categories) {
           const checkedCategories: string[] = postData.categories.map(
             (c) => c.category.id
@@ -148,11 +150,6 @@ const Page: React.FC = () => {
     setNowContent(e.target.value);
   };
 
-  const updateCoverImageURL = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // ここにカバーイメージURLのバリデーション処理を追加する
-    setNowCoverImageURL(e.target.value);
-  };
-
   // フォームの送信処理
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // この処理をしないとページがリロードされるので注意
@@ -168,7 +165,7 @@ const Page: React.FC = () => {
       const requestBody: PostPutRequestBody = {
         title: nowTitle,
         content: nowContent,
-        coverImageURL: nowCoverImageURL,
+        coverImageKey: nowCoverImageKey as string,
         categoryIds: checkableCategories
           ? checkableCategories.filter((c) => c.isSelect).map((c) => c.id)
           : [],
@@ -255,8 +252,8 @@ const Page: React.FC = () => {
           updateNowTitle={updateTitle}
           nowContent={nowContent}
           updateNowContent={updateContent}
-          nowCoverImageURL={nowCoverImageURL}
-          updateNowCoverImageURL={updateCoverImageURL}
+          nowCoverImageKey={nowCoverImageKey}
+          updateNowCoverImageKey={setNowCoverImageKey}
           checkableCategories={checkableCategories}
           switchCategoryState={switchCategoryState}
         />

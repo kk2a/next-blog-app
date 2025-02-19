@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { PostApiResponse } from "@/app/_types/PostApiResponse";
+import { PostGetApiResponse } from "@/app/_types/PostGetApiResponse";
 import { PostSummaryType } from "@/app/_types/PostSummaryType";
 import Loading from "@/app/_components/Loading";
 import PostSummaryEditorial from "@/app/_components/PostSummaryEditorial";
@@ -33,7 +33,7 @@ const AdminPostsPage = () => {
     // 投稿記事のデータを取得する関数
     const fetchPosts = async () => {
       const response = await fetch("/api/posts");
-      const data = (await response.json()) as PostApiResponse[];
+      const data = (await response.json()) as PostGetApiResponse[];
       const tmp = data.map((body) => ({
         ...body,
         categories: body.categories.map((category) => ({

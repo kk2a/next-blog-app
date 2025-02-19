@@ -5,6 +5,8 @@ import { twMerge } from "tailwind-merge";
 import DOMPurify from "isomorphic-dompurify";
 import { Post } from "@/app/_types/Post";
 import { dateFormat } from "../utils/dateFormat";
+import { supabase } from "@/utils/supabase";
+import { useEffect, useState } from "react";
 
 type Props = {
   post: Post;
@@ -15,6 +17,14 @@ const PostDetail: React.FC<Props> = (props) => {
   const safeHTML = DOMPurify.sanitize(post.content, {
     ALLOWED_TAGS: ["b", "strong", "i", "em", "u", "br"],
   });
+
+  // console.log(`post.coverImage.key: ${post.coverImage.key}`);
+  const bucketName = "cover_image";
+  const imagePublicUrlRes = supabase.storage
+    .from(bucketName)
+    .getPublicUrl(post.coverImage.key);
+  console.log(`apiResBody: ${imagePublicUrlRes}`);
+
   return (
     <div className="space-y-2">
       <div className="mb-2 text-2xl font-bold">{post.title}</div>
@@ -37,7 +47,7 @@ const PostDetail: React.FC<Props> = (props) => {
       </div>
       <div className="relative">
         <Image
-          src={post.coverImage.url}
+          src={imagePublicUrlRes.data?.publicUrl}
           alt="Example Image"
           layout="responsive"
           width={100}

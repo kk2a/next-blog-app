@@ -1,13 +1,23 @@
 "use client";
 import { SelectableCategory } from "@/app/_types/SelectableCategory";
+import { useRef, useState, useEffect } from "react";
+import Image from "next/image";
+import CryptoJS from "crypto-js";
+import { supabase } from "@/utils/supabase";
+
+const calculateMD5Hash = async (file: File): Promise<string> => {
+  const buffer = await file.arrayBuffer();
+  const wordArray = CryptoJS.lib.WordArray.create(buffer);
+  return CryptoJS.MD5(wordArray).toString();
+};
 
 type Props = {
   nowTitle: string;
   updateNowTitle: (e: React.ChangeEvent<HTMLInputElement>) => void;
   nowContent: string;
   updateNowContent: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  nowCoverImageURL: string;
-  updateNowCoverImageURL: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  nowCoverImageKey: string | undefined;
+  updateNowCoverImageKey: (e: string | undefined) => void;
   checkableCategories: SelectableCategory[] | null;
   switchCategoryState: (id: string) => void;
 };
@@ -18,11 +28,60 @@ const PostEditorialBase: React.FC<Props> = (props) => {
     updateNowTitle,
     nowContent,
     updateNowContent,
-    nowCoverImageURL,
-    updateNowCoverImageURL,
+    nowCoverImageKey,
+    updateNowCoverImageKey,
     checkableCategories,
     switchCategoryState,
   } = props;
+
+  const [nowCoverImageURL, updateNowCoverImageURL] = useState<
+    string | undefined
+  >();
+
+  const hiddenFileInputRef = useRef<HTMLInputElement>(null);
+
+  const bucketName = "cover_image";
+
+  useEffect(() => {
+    if (nowCoverImageKey) {
+      const publicUrlResult = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(nowCoverImageKey);
+      updateNowCoverImageURL(publicUrlResult.data.publicUrl);
+    }
+  }, [nowCoverImageKey]);
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateNowCoverImageKey(undefined);
+    updateNowCoverImageURL(undefined);
+
+    // 画像が選択されていない場合は戻る
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    // 複数ファイルが選択されている場合は最初のファイルを使用する
+    const file = e.target.files?.[0];
+    // ファイルのハッシュ値を計算
+    const fileHash = await calculateMD5Hash(file); // ◀ 追加
+    // バケット内のパスを指定
+    const path = `private/${fileHash}`; // ◀ 変更
+    // ファイルが存在する場合は上書きするための設定 → upsert: true
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .upload(path, file, { upsert: true });
+
+    if (error || !data) {
+      window.alert(`アップロードに失敗 ${error.message}`);
+      return;
+    }
+    // 画像のキー (実質的にバケット内のパス) を取得
+    updateNowCoverImageKey(data.path);
+    const publicUrlResult = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(data.path);
+    // 画像のURLを取得
+    updateNowCoverImageURL(publicUrlResult.data.publicUrl);
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-1">
@@ -56,19 +115,40 @@ const PostEditorialBase: React.FC<Props> = (props) => {
         />
       </div>
 
-      <div className="space-y-1">
-        <label htmlFor="coverImageURL" className="block font-bold">
-          カバーイメージ (URL)
-        </label>
+      <div>
         <input
-          type="text"
-          id="coverImageURL"
-          name="coverImageURL"
-          className="w-full rounded-md border-2 px-2 py-1"
-          value={nowCoverImageURL}
-          onChange={updateNowCoverImageURL}
-          placeholder="カバーイメージのURLを記入してください"
+          id="imgSelector"
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          hidden={true} // ◀ 追加 (非表示に設定)
+          ref={hiddenFileInputRef} // ◀ 追加 (参照を設定)
         />
+        <button
+          // 参照を経由してプログラム的にクリックイベントを発生させる
+          onClick={() => hiddenFileInputRef.current?.click()}
+          type="button"
+          className="rounded-md bg-indigo-500 px-3 py-1 text-white"
+        >
+          ファイルを選択
+        </button>
+        {nowCoverImageKey && (
+          <div className="break-all text-sm">
+            coverImageKey : {nowCoverImageKey}
+          </div>
+        )}
+        {nowCoverImageURL && (
+          <div className="mt-2">
+            <Image
+              className="w-1/2 border-2 border-gray-300"
+              src={nowCoverImageURL}
+              alt="プレビュー画像"
+              width={1024}
+              height={1024}
+              priority
+            />
+          </div>
+        )}
       </div>
 
       <div className="space-y-1">

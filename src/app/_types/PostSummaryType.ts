@@ -3,7 +3,7 @@ export type PostSummaryType = {
   title: string;
   content: string;
   createdAt: string;
-  coverImageURL?: string;
+  coverImageKey?: string;
   categories: {
     id: string;
     name: string;

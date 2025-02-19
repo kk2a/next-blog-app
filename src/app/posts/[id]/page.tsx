@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"; // ◀ 注目
 import type { Post } from "@/app/_types/Post";
 import Loading from "@/app/_components/Loading";
 
-import { PostApiResponse } from "@/app/_types/PostApiResponse";
+import { PostGetApiResponse } from "@/app/_types/PostGetApiResponse";
 import PostDetail from "@/app/_components/PostDetail";
 
 // 投稿記事の詳細表示 /posts/[id]
@@ -31,11 +31,11 @@ const Page: React.FC = () => {
         if (!response.ok) {
           throw new Error("データの取得に失敗しました");
         }
-        const data = (await response.json()) as PostApiResponse;
+        const data = (await response.json()) as PostGetApiResponse;
         setPost({
           ...data,
           coverImage: {
-            url: data.coverImageURL,
+            key: data.coverImageKey,
           },
           categories: data.categories.map((category) => ({
             ...category.category,

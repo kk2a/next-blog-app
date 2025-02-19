@@ -1,6 +1,6 @@
 export type PostPostRequestBody = {
   title: string;
   content: string;
-  coverImageURL: string;
+  coverImageKey: string;
   categoryIds: string[];
 };

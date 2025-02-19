@@ -11,8 +11,18 @@ export const DELETE = async (
 ) => {
   const token = req.headers.get("Authorization") ?? "";
   const { data, error } = await supabase.auth.getUser(token);
-  // if (error)
-  //   return NextResponse.json({ error: error.message }, { status: 401 });
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 401 });
+  if (!data)
+    return NextResponse.json(
+      { error: "ユーザーが見つかりませんでした" },
+      { status: 404 }
+    );
+  if (data.user.id !== "ea3b0462-4c92-45a9-9e2d-4808d1ea61fa")
+    return NextResponse.json(
+      { error: "認証されていないユーザーです" },
+      { status: 401 }
+    );
 
   try {
     const post = await prisma.post.delete({
@@ -38,7 +48,7 @@ export const PUT = async (
     return NextResponse.json({ error: error.message }, { status: 401 });
 
   try {
-    const { title, content, coverImageURL, categoryIds }: PostPutRequestBody =
+    const { title, content, coverImageKey, categoryIds }: PostPutRequestBody =
       await req.json();
 
     const post = await prisma.$transaction(async (prisma) => {
@@ -57,17 +67,18 @@ export const PUT = async (
         );
       }
 
-      const post: Post = await prisma.post.update({
+      const post = await prisma.post.update({
         where: {
           id,
         },
         data: {
           title,
           content,
-          coverImageURL,
+          coverImageKey,
           updatedAt: new Date(),
         },
       });
+      console.log(post);
 
       await prisma.postCategory.deleteMany({
         where: {
