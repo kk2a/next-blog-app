@@ -34,9 +34,9 @@ const Page: React.FC = () => {
         const data = (await response.json()) as PostGetApiResponse;
         setPost({
           ...data,
-          coverImage: {
-            key: data.coverImageKey,
-          },
+          ...(data.coverImageKey && {
+            coverImage: { key: data.coverImageKey },
+          }),
           categories: data.categories.map((category) => ({
             ...category.category,
           })),

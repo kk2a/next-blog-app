@@ -18,7 +18,7 @@ export const DELETE = async (
       { error: "ユーザーが見つかりませんでした" },
       { status: 404 }
     );
-  if (data.user.id !== "ea3b0462-4c92-45a9-9e2d-4808d1ea61fa")
+  if (data.user.role !== "authenticated")
     return NextResponse.json(
       { error: "認証されていないユーザーです" },
       { status: 401 }
@@ -46,10 +46,25 @@ export const PUT = async (
   const { data, error } = await supabase.auth.getUser(token);
   if (error)
     return NextResponse.json({ error: error.message }, { status: 401 });
+  if (!data)
+    return NextResponse.json(
+      { error: "ユーザーが見つかりませんでした" },
+      { status: 404 }
+    );
+  if (data.user.role !== "authenticated")
+    return NextResponse.json(
+      { error: "認証されていないユーザーです" },
+      { status: 401 }
+    );
 
   try {
-    const { title, content, coverImageKey, categoryIds }: PostPutRequestBody =
-      await req.json();
+    const {
+      title,
+      content,
+      coverImageKey,
+      bodyPdfKey,
+      categoryIds,
+    }: PostPutRequestBody = await req.json();
 
     const post = await prisma.$transaction(async (prisma) => {
       const categories = await prisma.category.findMany({
@@ -75,6 +90,7 @@ export const PUT = async (
           title,
           content,
           coverImageKey,
+          bodyPdfKey,
           updatedAt: new Date(),
         },
       });

@@ -21,8 +21,8 @@ model Post {
   id             String @id @default(uuid())
   title          String
   content        String
-  coverImageKey  String
-  // pdfKey         String
+  coverImageKey  String?
+  bodyPdfKey     String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   categories     PostCategory[]

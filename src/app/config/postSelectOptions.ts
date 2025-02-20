@@ -6,6 +6,7 @@ export const postSelectOptions = {
     createdAt: true,
     updatedAt: true,
     coverImageKey: true,
+    bodyPdfKey: true,
     categories: {
       select: {
         category: {

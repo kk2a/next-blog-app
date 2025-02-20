@@ -13,12 +13,13 @@ export const POST = async (req: NextRequest) => {
   const { data, error } = await supabase.auth.getUser(token);
   if (error)
     return NextResponse.json({ error: error.message }, { status: 401 });
+  // console.log(data);
   if (!data)
     return NextResponse.json(
       { error: "ユーザーが見つかりませんでした" },
       { status: 404 }
     );
-  if (data.user.id !== "ea3b0462-4c92-45a9-9e2d-4808d1ea61fa")
+  if (data.user.role !== "authenticated")
     return NextResponse.json(
       { error: "認証されていないユーザーです" },
       { status: 401 }
@@ -26,7 +27,8 @@ export const POST = async (req: NextRequest) => {
 
   try {
     const requestBody: PostPostRequestBody = await req.json();
-    const { title, content, coverImageKey, categoryIds } = requestBody;
+    const { title, content, coverImageKey, bodyPdfKey, categoryIds } =
+      requestBody;
 
     // 投稿記事テーブルにレコードを追加
     const post: Post = await prisma.post.create({
@@ -34,6 +36,7 @@ export const POST = async (req: NextRequest) => {
         title,
         content,
         coverImageKey,
+        bodyPdfKey,
         // Prismaのネスト機能で関連カテゴリを同時作成（中間テーブル自動生成）
         // もし、カテゴリが存在しなければ外部キー制約違反エラー "P2003" が発生
         categories: {

@@ -8,6 +8,7 @@ import LoadingPopup from "@/app/_components/LoadingPopup";
 import { SelectableCategory } from "@/app/_types/SelectableCategory";
 import PostEditorialBase from "@/app/_components/PostEditorialBase";
 import { useAuth } from "@/app/_hooks/useAuth"; // ◀ 追加
+import { PostPostRequestBody } from "@/app/_types/PostPostRequestBody";
 
 // 投稿記事の新規作成のページ
 const Page: React.FC = () => {
@@ -17,9 +18,8 @@ const Page: React.FC = () => {
 
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
-  const [newCoverImageURL, setNewCoverImageURL] = useState<
-    string | undefined
-  >();
+  const [newBodyPdfKey, setNewBodyPdfKey] = useState<string | undefined>();
+
   const [newCoverImageKey, setNewCoverImageKey] = useState<
     string | undefined
   >();
@@ -122,12 +122,14 @@ const Page: React.FC = () => {
         title: newTitle,
         content: newContent,
         coverImageKey: newCoverImageKey,
+        bodyPdfKey: newBodyPdfKey,
         categoryIds: checkableCategories
           ? checkableCategories.filter((c) => c.isSelect).map((c) => c.id)
           : [],
-      };
+      } as PostPostRequestBody;
+      console.log(JSON.stringify(requestBody, null, 2));
       const requestUrl = "/api/admin/posts";
-      console.log(`${requestUrl} => ${JSON.stringify(requestBody, null, 2)}`);
+      // console.log(`${requestUrl} => ${JSON.stringify(requestBody, null, 2)}`);
       const res = await fetch(requestUrl, {
         method: "POST",
         cache: "no-store",
@@ -181,6 +183,8 @@ const Page: React.FC = () => {
           updateNowContent={updateNewContent}
           nowCoverImageKey={newCoverImageKey}
           updateNowCoverImageKey={setNewCoverImageKey}
+          nowBodyPdfKey={newBodyPdfKey}
+          updateNowBodyPdfKey={setNewBodyPdfKey}
           checkableCategories={checkableCategories}
           switchCategoryState={switchCategoryState}
         />

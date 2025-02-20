@@ -13,6 +13,16 @@ export const POST = async (req: NextRequest) => {
   const { data, error } = await supabase.auth.getUser(token);
   if (error)
     return NextResponse.json({ error: error.message }, { status: 401 });
+  if (!data)
+    return NextResponse.json(
+      { error: "ユーザーが見つかりませんでした" },
+      { status: 404 }
+    );
+  if (data.user.role !== "authenticated")
+    return NextResponse.json(
+      { error: "認証されていないユーザーです" },
+      { status: 401 }
+    );
 
   try {
     const { name }: RequestBody = await req.json();

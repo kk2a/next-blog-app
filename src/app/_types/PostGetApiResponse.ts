@@ -4,7 +4,8 @@ export type PostGetApiResponse = {
   content: string;
   createdAt: string;
   updatedAt: string;
-  coverImageKey: string;
+  coverImageKey?: string;
+  bodyPdfKey?: string;
   categories: {
     category: {
       id: string;

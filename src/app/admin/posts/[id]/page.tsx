@@ -22,6 +22,7 @@ const Page: React.FC = () => {
   const [nowCoverImageKey, setNowCoverImageKey] = useState<
     string | undefined
   >();
+  const [nowBodyPdfKey, setNowBodyPdfKey] = useState<string | undefined>();
 
   const router = useRouter();
 
@@ -101,6 +102,7 @@ const Page: React.FC = () => {
         setNowTitle(postData.title);
         setNowContent(postData.content);
         setNowCoverImageKey(postData.coverImageKey);
+        setNowBodyPdfKey(postData.bodyPdfKey);
         if (initCheckableCategories && postData.categories) {
           const checkedCategories: string[] = postData.categories.map(
             (c) => c.category.id
@@ -254,6 +256,8 @@ const Page: React.FC = () => {
           updateNowContent={updateContent}
           nowCoverImageKey={nowCoverImageKey}
           updateNowCoverImageKey={setNowCoverImageKey}
+          nowBodyPdfKey={nowBodyPdfKey}
+          updateNowBodyPdfKey={setNowBodyPdfKey}
           checkableCategories={checkableCategories}
           switchCategoryState={switchCategoryState}
         />

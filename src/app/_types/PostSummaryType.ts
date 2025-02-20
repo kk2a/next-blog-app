@@ -4,6 +4,7 @@ export type PostSummaryType = {
   content: string;
   createdAt: string;
   coverImageKey?: string;
+  bodyPdfKey?: string;
   categories: {
     id: string;
     name: string;
