@@ -25,6 +25,7 @@ const AdminPostsPage = () => {
   );
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [isAscending, setIsAscending] = useState<boolean>(true);
+  const [searchHasPdf, setSearchHasPdf] = useState<boolean>(false);
 
   const { token } = useAuth();
 
@@ -110,8 +111,13 @@ const AdminPostsPage = () => {
       const matchesDateTo = searchDateTo
         ? new Date(post.createdAt) <= new Date(searchDateTo)
         : true;
+      const matchesHasPdf = searchHasPdf ? post.bodyPdfKey : true;
       return (
-        matchesTitle && matchesCategory && matchesDateFrom && matchesDateTo
+        matchesTitle &&
+        matchesCategory &&
+        matchesDateFrom &&
+        matchesDateTo &&
+        matchesHasPdf
       );
     });
     setFilteredPosts(filtered || null);
@@ -155,6 +161,8 @@ const AdminPostsPage = () => {
         setSearchDateFrom={setSearchDateFrom}
         searchDateTo={searchDateTo}
         setSearchDateTo={setSearchDateTo}
+        searchHasPdf={searchHasPdf}
+        setSearchHasPdf={setSearchHasPdf}
         allCategories={allCategories}
         handleSearch={handleSearch}
         handleCategoryChange={handleCategoryChange}
