@@ -4,6 +4,7 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 config.autoAddCss = false;
 import Header from "@/app/_components/Header";
+import Footer from "@/app/_components/Footer";
 
 export const metadata: Metadata = {
   title: "NextBlogApp",
@@ -18,9 +19,10 @@ const RootLayout: React.FC<Props> = (props) => {
   const { children } = props;
   return (
     <html lang="ja">
-      <body>
+      <body className="flex min-h-screen flex-col">
         <Header />
-        <div className="mx-4 mt-2 max-w-2xl md:mx-auto">{children}</div>
+        <div className="mx-4 mt-2 max-w-4xl grow md:mx-[25vw]">{children}</div>
+        <Footer />
       </body>
     </html>
   );

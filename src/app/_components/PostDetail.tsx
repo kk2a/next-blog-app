@@ -8,6 +8,9 @@ import { dateFormat } from "../utils/dateFormat";
 import { supabase } from "@/utils/supabase";
 import { useEffect, useState } from "react";
 import { FaFilePdf } from "react-icons/fa";
+import { PostSummaryType } from "../_types/PostSummaryType";
+import { PostGetApiResponse } from "../_types/PostGetApiResponse";
+import PostSummary from "./PostSummary";
 
 type Props = {
   post: Post;
@@ -19,22 +22,82 @@ const PostDetail: React.FC<Props> = (props) => {
     ALLOWED_TAGS: ["b", "strong", "i", "em", "u", "br"],
   });
 
-  console.log(`post: ${JSON.stringify(post, null, 2)}`);
+  // console.log(`post: ${JSON.stringify(post, null, 2)}`);
   const coverImageBucketName = "cover_image";
   const imagePublicUrlRes = post.coverImage
     ? supabase.storage
         .from(coverImageBucketName)
         .getPublicUrl(post.coverImage.key)
     : undefined;
-  if (post.coverImage) {
-    console.log(`coverImageaaaa: ${JSON.stringify(post.coverImage, null, 2)}`);
-  }
 
   const bodyPdfBucketName = "body_pdf";
   const pdfPublicUrlRes = post.bodyPdfKey
     ? supabase.storage.from(bodyPdfBucketName).getPublicUrl(post.bodyPdfKey)
     : undefined;
-  console.log(`pdfPublicUrlRes: ${JSON.stringify(pdfPublicUrlRes, null, 2)}`);
+  // console.log(`pdfPublicUrlRes: ${JSON.stringify(pdfPublicUrlRes, null, 2)}`);
+
+  const [relatedPosts, setRelatedPosts] = useState<PostSummaryType[]>([]);
+
+  useEffect(() => {
+    const fetchRelatedPosts = async () => {
+      try {
+        const requestUrl = "/api/posts";
+        const res = await fetch(requestUrl, {
+          method: "GET",
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          throw new Error(`${res.status}: ${res.statusText}`);
+        }
+        const tmp = (await res.json()) as PostGetApiResponse[];
+        const data: PostSummaryType[] = tmp.map((body) => ({
+          ...body,
+          categories: body.categories.map((category) => ({
+            ...category.category,
+          })),
+        }));
+        console.log(`data: ${JSON.stringify(data, null, 2)}`);
+        console.log(
+          `post.categories: ${JSON.stringify(
+            post.categories.map((pc) => pc.id),
+            null,
+            2
+          )}`
+        );
+        for (const p of data) {
+          console.log(`p: ${JSON.stringify(p, null, 2)}`);
+          console.log(
+            `p.categories: ${JSON.stringify(
+              p.categories.some((c) =>
+                post.categories.map((pc) => pc.id).includes(c.id)
+              ),
+              null,
+              2
+            )}`
+          );
+        }
+        const filteredData = data.filter(
+          (p) =>
+            p.id !== post.id &&
+            p.categories.some((c) =>
+              post.categories.map((pc) => pc.id).includes(c.id)
+            )
+        );
+        console.log(`filteredData: ${JSON.stringify(filteredData, null, 2)}`);
+        setRelatedPosts(filteredData);
+        console.log(`relatedPosts: ${JSON.stringify(filteredData, null, 2)}`);
+      } catch (error) {
+        const errorMsg =
+          error instanceof Error
+            ? `カテゴリのDELETEリクエストに失敗しました\n${error.message}`
+            : `予期せぬエラーが発生しました\n${error}`;
+        console.error(errorMsg);
+        window.alert(errorMsg);
+      }
+    };
+
+    fetchRelatedPosts();
+  }, [post]);
 
   return (
     <div className="space-y-2">
@@ -83,6 +146,14 @@ const PostDetail: React.FC<Props> = (props) => {
         </div>
       )}
       <div dangerouslySetInnerHTML={{ __html: safeHTML }} />
+      <div className="text-lg font-bold">関連記事</div>
+      <div className="grid grid-cols-1 gap-2">
+        {relatedPosts.length ? (
+          relatedPosts.map((post) => <PostSummary key={post.id} post={post} />)
+        ) : (
+          <div>関連記事はありません</div>
+        )}
+      </div>
     </div>
   );
 };

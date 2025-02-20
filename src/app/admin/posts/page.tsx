@@ -147,8 +147,8 @@ const AdminPostsPage = () => {
         </Link>
       </div>
       <PostSearch
-        searchTitle={searchTitle}
-        setSearchTitle={setSearchTitle}
+        searchKeyWord={searchTitle}
+        setKeyWord={setSearchTitle}
         searchCategories={searchCategories}
         setSearchCategories={setSearchCategories}
         searchDateFrom={searchDateFrom}

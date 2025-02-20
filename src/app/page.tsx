@@ -13,13 +13,14 @@ const HomePage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [posts, setPosts] = useState<PostSummaryType[] | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [searchTitle, setSearchTitle] = useState<string>("");
+  const [searchKeyWord, setSearchKeyWord] = useState<string>("");
   const [searchCategories, setSearchCategories] = useState<string[]>([]);
   const [searchDateFrom, setSearchDateFrom] = useState<string>("");
   const [searchDateTo, setSearchDateTo] = useState<string>("");
   const [filteredPosts, setFilteredPosts] = useState<PostSummaryType[] | null>(
     null
   );
+  const [searchHasPdf, setSearchHasPdf] = useState<boolean>(false);
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [isAscending, setIsAscending] = useState<boolean>(true);
 
@@ -81,7 +82,13 @@ const HomePage = () => {
 
   const handleSearch = () => {
     const filtered = posts?.filter((post) => {
-      const matchesTitle = post.title.includes(searchTitle);
+      const matchesKeyWord =
+        !searchKeyWord ||
+        post.title.includes(searchKeyWord) ||
+        post.content.includes(searchKeyWord) ||
+        (post.categories.some((category) =>
+          category.name.includes(searchKeyWord)
+        ) as boolean);
       const matchesCategory = searchCategories.length
         ? post.categories.some((category) =>
             searchCategories.includes(category.name)
@@ -93,8 +100,13 @@ const HomePage = () => {
       const matchesDateTo = searchDateTo
         ? new Date(post.createdAt) <= new Date(searchDateTo)
         : true;
+      const matchesHasPdf = searchHasPdf ? post.bodyPdfKey : true;
       return (
-        matchesTitle && matchesCategory && matchesDateFrom && matchesDateTo
+        matchesKeyWord &&
+        matchesCategory &&
+        matchesDateFrom &&
+        matchesDateTo &&
+        matchesHasPdf
       );
     });
     setFilteredPosts(filtered || null);
@@ -123,14 +135,16 @@ const HomePage = () => {
       <div className="mb-4 text-2xl font-bold">投稿記事の一覧</div>
       {isDeleting && <LoadingPopup />}
       <PostSearch
-        searchTitle={searchTitle}
-        setSearchTitle={setSearchTitle}
+        searchKeyWord={searchKeyWord}
+        setKeyWord={setSearchKeyWord}
         searchCategories={searchCategories}
         setSearchCategories={setSearchCategories}
         searchDateFrom={searchDateFrom}
         setSearchDateFrom={setSearchDateFrom}
         searchDateTo={searchDateTo}
         setSearchDateTo={setSearchDateTo}
+        searchHasPdf={searchHasPdf}
+        setSearchHasPdf={setSearchHasPdf}
         allCategories={allCategories}
         handleSearch={handleSearch}
         handleCategoryChange={handleCategoryChange}

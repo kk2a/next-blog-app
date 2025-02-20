@@ -14,7 +14,7 @@ export const GET = async (
       ...postSelectOptions,
       where: { id },
     })) as PostGetApiResponse | null;
-    console.log(post);
+    // console.log(post);
     if (!post) {
       return NextResponse.json(
         { error: `id='${id}'の投稿記事は見つかりませんでした` },

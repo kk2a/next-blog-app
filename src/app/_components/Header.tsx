@@ -19,25 +19,27 @@ const Header: React.FC = () => {
 
   return (
     <header>
-      <div className="bg-slate-800 py-2">
+      <div className="w-full bg-slate-800 py-2">
         <div
           className={twMerge(
-            "mx-4 max-w-2xl md:mx-auto",
-            "flex items-center justify-between",
+            "mx-10 flex items-center justify-between",
             "text-lg font-bold text-white"
           )}
         >
           <div>
             <Link href="/">
               <FontAwesomeIcon icon={faFish} className="mr-1" />
-              MyBlogApp
+              kk2aBlogDemo
             </Link>
           </div>
           <div className="flex gap-x-6">
             {/* ▼ 追加 */}
             {!isLoading &&
               (session ? (
-                <button onClick={logout}>Logout</button>
+                <>
+                  <button onClick={logout}>Logout</button>
+                  <Link href="/admin">Admin</Link> {/* Adminリンクを追加 */}
+                </>
               ) : (
                 <Link href="/login">Login</Link>
               ))}

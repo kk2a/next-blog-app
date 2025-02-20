@@ -22,7 +22,6 @@ const Page: React.FC = () => {
     setIsLoading(true);
     const fetchPost = async () => {
       try {
-        // microCMS から記事データを取得
         const requestUrl = `/api/posts/${id}`;
         const response = await fetch(requestUrl, {
           method: "GET",

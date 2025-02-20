@@ -4,6 +4,7 @@ import DOMPurify from "isomorphic-dompurify";
 import Link from "next/link";
 import { PostSummaryType } from "@/app/_types/PostSummaryType";
 import { dateFormat } from "@/app/utils/dateFormat";
+import { FaFilePdf } from "react-icons/fa";
 
 type Props = {
   post: PostSummaryType;
@@ -17,7 +18,10 @@ const PostSummaryBase: React.FC<Props> = (props) => {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <div>{dateFormat(post.createdAt)}</div>
+        <div className="flex items-center space-x-2">
+          <div>{dateFormat(post.createdAt)}</div>
+          {post.bodyPdfKey && <FaFilePdf className="text-red-500" />}
+        </div>
         <div className="flex space-x-1.5">
           {post.categories.map((category) => (
             <div

@@ -39,6 +39,24 @@ const Page: React.FC = () => {
 
   const { token } = useAuth();
 
+  const [localStorageKey, setLocalStorageKey] = useState<
+    (arg0: string) => string
+  >(() => (key: string) => `${id}_${key}`);
+
+  const removeLocalStorage = () => {
+    localStorage.removeItem(localStorageKey("nowTitle"));
+    localStorage.removeItem(localStorageKey("nowContent"));
+    localStorage.removeItem(localStorageKey("nowCoverImageKey"));
+    localStorage.removeItem(localStorageKey("nowBodyPdfKey"));
+    localStorage.removeItem(localStorageKey("checkableCategories"));
+  };
+
+  const handleClearLocalStorage = () => {
+    removeLocalStorage();
+    window.alert("編集履歴が削除されました。");
+    window.location.reload();
+  };
+
   // コンポーネントがマウントされたとき (初回レンダリングのとき) に1回だけ実行
   useEffect(() => {
     setIsLoading(true);
@@ -85,8 +103,8 @@ const Page: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setIsLoading(true);
     const fetchPostData = async () => {
+      setIsLoading(true);
       try {
         const requestUrl = `/api/posts/${id}`;
         const res = await fetch(requestUrl, {
@@ -95,23 +113,42 @@ const Page: React.FC = () => {
         });
 
         if (!res.ok) {
-          throw new Error(`${res.status}: ${res.statusText}`); // -> catch節に移動
+          throw new Error(`${res.status}: ${res.statusText}`);
         }
 
         const postData = (await res.json()) as PostGetApiResponse;
-        setNowTitle(postData.title);
-        setNowContent(postData.content);
-        setNowCoverImageKey(postData.coverImageKey);
-        setNowBodyPdfKey(postData.bodyPdfKey);
+
+        const storedTitle = localStorage.getItem(localStorageKey("nowTitle"));
+        const storedContent = localStorage.getItem(
+          localStorageKey("nowContent")
+        );
+        const storedCoverImageKey = localStorage.getItem(
+          localStorageKey("nowCoverImageKey")
+        );
+        const storedBodyPdfKey = localStorage.getItem(
+          localStorageKey("nowBodyPdfKey")
+        );
+        const storedCategories = localStorage.getItem(
+          localStorageKey("checkableCategories")
+        );
+
+        setNowTitle(storedTitle || postData.title);
+        setNowContent(storedContent || postData.content);
+        setNowCoverImageKey(storedCoverImageKey || postData.coverImageKey);
+        setNowBodyPdfKey(storedBodyPdfKey || postData.bodyPdfKey);
+
         if (initCheckableCategories && postData.categories) {
           const checkedCategories: string[] = postData.categories.map(
             (c) => c.category.id
           );
-          setCheckableCategories(
-            initCheckableCategories.map((category: SelectableCategory) => ({
+          const categories = initCheckableCategories.map(
+            (category: SelectableCategory) => ({
               ...category,
               isSelect: checkedCategories.includes(category.id),
-            }))
+            })
+          );
+          setCheckableCategories(
+            storedCategories ? JSON.parse(storedCategories) : categories
           );
         }
       } catch (error) {
@@ -125,9 +162,45 @@ const Page: React.FC = () => {
         setIsLoading(false);
       }
     };
-    console.log("aaa");
+
     fetchPostData();
-  }, [id, initCheckableCategories]);
+  }, [id, initCheckableCategories, localStorageKey]);
+
+  useEffect(() => {
+    if (nowTitle) {
+      localStorage.setItem(localStorageKey("nowTitle"), nowTitle);
+    }
+  }, [nowTitle, localStorageKey]);
+
+  useEffect(() => {
+    if (nowContent) {
+      localStorage.setItem(localStorageKey("nowContent"), nowContent);
+    }
+  }, [nowContent, localStorageKey]);
+
+  useEffect(() => {
+    if (nowCoverImageKey) {
+      localStorage.setItem(
+        localStorageKey("nowCoverImageKey"),
+        nowCoverImageKey
+      );
+    }
+  }, [nowCoverImageKey, localStorageKey]);
+
+  useEffect(() => {
+    if (nowBodyPdfKey) {
+      localStorage.setItem(localStorageKey("nowBodyPdfKey"), nowBodyPdfKey);
+    }
+  }, [nowBodyPdfKey, localStorageKey]);
+
+  useEffect(() => {
+    if (checkableCategories) {
+      localStorage.setItem(
+        localStorageKey("checkableCategories"),
+        JSON.stringify(checkableCategories)
+      );
+    }
+  }, [checkableCategories, localStorageKey]);
 
   // チェックボックスの状態 (State) を更新する関数
   const switchCategoryState = (categoryId: string) => {
@@ -190,6 +263,10 @@ const Page: React.FC = () => {
 
       const postResponse = await res.json();
       setIsSubmitting(false);
+
+      // ローカルストレージを削除
+      removeLocalStorage();
+
       router.push(`/posts/${id}`); // 投稿記事の詳細ページに移動
     } catch (error) {
       const errorMsg =
@@ -210,15 +287,24 @@ const Page: React.FC = () => {
     }
 
     try {
+      if (!token) {
+        window.alert("予期せぬ動作：トークンが取得できません。");
+        return;
+      }
       const requestUrl = `/api/admin/posts/${id}`;
       const res = await fetch(requestUrl, {
         method: "DELETE",
         cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
       });
 
       if (!res.ok) {
         throw new Error(`${res.status}: ${res.statusText}`);
       }
+      removeLocalStorage();
       // カテゴリの一覧ページに移動
       router.replace("/admin/posts");
     } catch (error) {
@@ -282,6 +368,13 @@ const Page: React.FC = () => {
           </button>
         </div>
       </form>
+
+      <button
+        className="mt-4 rounded-md bg-yellow-500 px-3 py-1 font-bold text-white hover:bg-yellow-600"
+        onClick={handleClearLocalStorage}
+      >
+        編集履歴を削除
+      </button>
     </main>
   );
 };

@@ -14,7 +14,7 @@ const SortButton: React.FC<SortButtonProps> = ({ isAscending, handleSort }) => {
       onClick={handleSort}
       className="flex items-center rounded bg-gray-500 px-3 py-1 text-white"
     >
-      {isAscending ? "降順" : "昇順"}にソート
+      {isAscending ? "新しい順" : "古い順"}に並び替え
       <FontAwesomeIcon
         icon={isAscending ? faArrowDown : faArrowUp}
         className="ml-2"
