@@ -36,10 +36,9 @@ Next.jsを用いた個人ブログ専用のアプリです．情報科学分野�
 
 - 記事の投稿・編集・削除
 - カテゴリの追加・編集・削除
-- PDFファイルの添付
 
 ![記事投稿画面](public/images/readme/post-editor.png)
-![カテゴリ編集画面](public/images/readme/cateogory-editor.png)
+![カテゴリ編集画面](public/images/readme/category-editor.png)
 
 ### 3. 記事執筆機能
 
@@ -50,6 +49,8 @@ Next.jsを用いた個人ブログ専用のアプリです．情報科学分野�
 - コード片の挿入と装飾
 
 ※画像の挿入機能は現在サポートしていません．記事のカバー画像のみ設定可能です．
+
+![記事執筆画面](public/images/readme/post-content-editor.png)
 
 ### 4. PDF添付機能
 
