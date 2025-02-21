@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next Blog App
 
-## Getting Started
+Next.jsを用いた個人ブログ専用のアプリです。情報科学分野の解説記事を中心とした、カスタマイズ可能な個人ブログプラットフォームとして開発しました。
 
-First, run the development server:
+## 開発の背景・経緯
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+情報科学分野の解説記事を公開したいという思いから開発をスタートしました。既存の技術ブログプラットフォームでは自分の求める自由度が得られなかったため、特にLaTeXで書いた数学的な内容をPDF形式で添付できる機能など、独自の要件を満たすブログシステムを構築することにしました。
+
+公開URL: [あなたのアプリのURL]
+
+## 特徴と機能の説明
+
+### 1. 記事管理システム
+
+- カバーイメージ、カテゴリ、PDF添付機能付きの記事投稿
+- リッチテキストエディタによるHTML形式での執筆支援
+- カテゴリ管理機能
+
+![記事一覧表示](public/images/readme/list-view.png)
+![検索機能](public/images/readme/search.png)
+
+### 2. 管理者機能
+
+ログイン情報（デモ用）:
+
+- メールアドレス: `admin@example.com`
+- パスワード: `a`
+
+※重要な注意事項:
+
+- セキュリティ上の理由から、実際の利用時は個人情報を入力しないでください
+- このデモ環境で投稿した記事やカテゴリは全てのユーザーに公開されます
+- 不適切な内容の投稿はお控えください
+
+主な機能:
+
+- 記事の投稿・編集・削除
+- カテゴリの追加・編集・削除
+- PDFファイルの添付
+
+![記事投稿画面](public/images/readme/post-editor.png)
+![カテゴリ編集画面](public/images/readme/cateogory-editor.png)
+
+### 3. 記事執筆機能
+
+シンプルなHTMLエディタを採用し、記事の執筆環境を提供します。
+
+- HTMLによるコンテンツ作成
+- 基本的な文章装飾（見出し、リスト、リンクなど）
+- コード片の挿入と装飾
+
+※画像の挿入機能は現在サポートしていません。記事のカバー画像のみ設定可能です。
+
+### 4. PDF添付機能
+
+LaTeXで作成した数学的な内容をPDFとして添付可能です。数式やグラフを美しく表示できます。
+
+![PDF添付機能](public/images/readme/pdf-upload.png)
+![PDFプレビュー](public/images/readme/pdf-preview.png)
+
+## 使用技術
+
+### フロントエンド
+
+- TypeScript
+- Next.js 14 (App Router)
+- React
+- Tailwind CSS
+- react-katex (数式表示)
+
+### バックエンド
+
+- Prisma (ORM)
+- Supabase
+  - Authentication (メール認証)
+  - Database (PostgreSQL)
+  - Storage
+    - PDFファイル保存
+    - 記事カバーイメージの保存
+
+### インフラ・開発環境
+
+- Vercel (ホスティング)
+- Node.js
+- 開発ツール
+  - VSCode
+  - ESLint (コード品質管理)
+  - Prettier (コードフォーマット)
+  - Git/GitHub
+- GitHub Actions
+  - サーバーのスリープ防止の定期Ping
+
+## システム構成図
+
+```mermaid
+graph TD
+    A[Client Browser] -->|HTTP/HTTPS| B[Vercel Edge Network]
+    B --> C[Next.js Server]
+
+    subgraph Backend Services
+        C -->|認証| D[Supabase Auth]
+        C -->|データ操作| E[Supabase Database]
+        C -->|ファイル保存| F[Supabase Storage]
+    end
+
+    subgraph Storage
+        F -->|保存| G[PDFファイル]
+        F -->|保存| H[カバー画像]
+    end
+
+    E -->|利用| I[(PostgreSQL)]
+
+    subgraph Monitoring
+        J[GitHub Actions] -->|定期Ping| B
+    end
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 開発期間・体制
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- 開発体制：個人開発
+- 開発期間：2024.12 ~ 2025.2 (約40時間)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 工夫した点
 
-## Learn More
+- 機能の拡張性を考慮したモジュール設計
+- コンポーネントの適切なカプセル化
+- 保守性を重視したファイル構成
 
-To learn more about Next.js, take a look at the following resources:
+## 既知の課題と今後の展望
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 現在の課題
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- 記事投稿にWebインターフェースが必要で操作が煩雑
 
-## Deploy on Vercel
+### 今後の展望
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- CUIベースの記事投稿支援ツールの開発
+- 記事管理機能の拡充
+- 検索機能の強化
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## その他
+
+[ポートフォリオURL](https://kk2a.github.io/portfolio/Portfolio.html)
