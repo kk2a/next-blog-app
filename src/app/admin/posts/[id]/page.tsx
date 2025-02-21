@@ -246,7 +246,7 @@ const Page: React.FC = () => {
           : [],
       };
       const requestUrl = `/api/admin/posts/${id}`;
-      console.log(`${requestUrl} => ${JSON.stringify(requestBody, null, 2)}`);
+      // console.log(`${requestUrl} => ${JSON.stringify(requestBody, null, 2)}`);
       const res = await fetch(requestUrl, {
         method: "PUT",
         cache: "no-store",

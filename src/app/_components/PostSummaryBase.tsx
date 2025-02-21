@@ -1,10 +1,10 @@
 "use client";
 import { twMerge } from "tailwind-merge";
-import DOMPurify from "isomorphic-dompurify";
 import Link from "next/link";
 import { PostSummaryType } from "@/app/_types/PostSummaryType";
-import { dateFormat } from "@/app/utils/dateFormat";
+import { dateFormat } from "@/app/_utils/dateFormat";
 import { FaFilePdf } from "react-icons/fa";
+import { renderContentWithMath } from "@/app/_utils/renderContentWithMath";
 
 type Props = {
   post: PostSummaryType;
@@ -12,11 +12,10 @@ type Props = {
 
 const PostSummaryBase: React.FC<Props> = (props) => {
   const { post } = props;
-  const safeHTML = DOMPurify.sanitize(post.content, {
-    ALLOWED_TAGS: ["b", "strong", "i", "em", "u", "br"],
-  });
+  const contentWithMath = renderContentWithMath(post.content);
+
   return (
-    <div>
+    <div className="max-h-48 overflow-hidden">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <div>{dateFormat(post.createdAt)}</div>
@@ -39,10 +38,7 @@ const PostSummaryBase: React.FC<Props> = (props) => {
       </div>
       <Link href={`/posts/${post.id}`}>
         <div className="mb-1 text-lg font-bold">{post.title}</div>
-        <div
-          className="line-clamp-3"
-          dangerouslySetInnerHTML={{ __html: safeHTML }}
-        />
+        <div className="prose line-clamp-3">{contentWithMath}</div>
       </Link>
     </div>
   );

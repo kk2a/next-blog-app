@@ -12,8 +12,20 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            "ul > li::marker": {
+              color: "#111827",
+            },
+            "--tw-prose-bullets": "#111827",
+            "--tw-prose-body": "#111827",
+          },
+        },
+      },
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/typography")],
 };
+
 export default config;

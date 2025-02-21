@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { Prisma } from "@prisma/client";
-import { postSelectOptions } from "@/app/config/postSelectOptions";
+import { postSelectOptions } from "@/app/_config/postSelectOptions";
 
 // postSelectOptionsを指定したときの戻り値の「型」を定義
 type PostWithCategories = Prisma.PostGetPayload<typeof postSelectOptions>;

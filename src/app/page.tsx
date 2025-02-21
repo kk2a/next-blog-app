@@ -8,11 +8,11 @@ import Link from "next/link";
 import PostSearch from "@/app/_components/PostSearch";
 import SortButton from "@/app/_components/SortButton";
 import PostSummary from "@/app/_components/PostSummary";
+import Pagination from "@/app/_components/Pagination";
 
 const HomePage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [posts, setPosts] = useState<PostSummaryType[] | null>(null);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [searchKeyWord, setSearchKeyWord] = useState<string>("");
   const [searchCategories, setSearchCategories] = useState<string[]>([]);
   const [searchDateFrom, setSearchDateFrom] = useState<string>("");
@@ -23,6 +23,8 @@ const HomePage = () => {
   const [searchHasPdf, setSearchHasPdf] = useState<boolean>(false);
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [isAscending, setIsAscending] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const postsPerPage = 5;
 
   useEffect(() => {
     // 投稿記事のデータを取得する関数
@@ -55,30 +57,6 @@ const HomePage = () => {
   if (isLoading) {
     return <Loading />;
   }
-
-  const handleDelete = async (id: string) => {
-    if (confirm("本当に削除しますか？")) {
-      setIsDeleting(true);
-      try {
-        const res = await fetch(`/api/admin/posts/${id}`, {
-          method: "DELETE",
-        });
-
-        if (!res.ok) {
-          throw new Error(`${res.status}: ${res.statusText}`); // -> catch節に移動
-        }
-      } catch (error) {
-        const errorMsg =
-          error instanceof Error
-            ? `投稿記事のPOSTリクエストに失敗しました\n${error.message}`
-            : `予期せぬエラーが発生しました\n${error}`;
-        console.error(errorMsg);
-        window.alert(errorMsg);
-      }
-      setIsDeleting(false);
-      setPosts((posts as PostSummaryType[]).filter((post) => post.id !== id));
-    }
-  };
 
   const handleSearch = () => {
     const filtered = posts?.filter((post) => {
@@ -130,10 +108,25 @@ const HomePage = () => {
     setIsAscending(!isAscending);
   };
 
+  // 現在のページのポストを取得
+  const getCurrentPagePosts = () => {
+    if (!filteredPosts) return null;
+    const startIndex = (currentPage - 1) * postsPerPage;
+    const endIndex = startIndex + postsPerPage;
+    return filteredPosts.slice(startIndex, endIndex);
+  };
+
+  const totalPages = filteredPosts
+    ? Math.ceil(filteredPosts.length / postsPerPage)
+    : 0;
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <main>
       <div className="mb-4 text-2xl font-bold">投稿記事の一覧</div>
-      {isDeleting && <LoadingPopup />}
       <PostSearch
         searchKeyWord={searchKeyWord}
         setKeyWord={setSearchKeyWord}
@@ -154,7 +147,16 @@ const HomePage = () => {
       </div>
       <div className="space-y-3">
         {filteredPosts ? (
-          filteredPosts.map((post) => <PostSummary key={post.id} post={post} />)
+          <>
+            {getCurrentPagePosts()?.map((post) => (
+              <PostSummary key={post.id} post={post} />
+            ))}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
         ) : (
           <div className="text-gray-500">（記事は1個も作成されていません）</div>
         )}

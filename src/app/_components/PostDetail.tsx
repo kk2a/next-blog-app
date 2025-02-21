@@ -2,15 +2,16 @@
 
 import Image from "next/image";
 import { twMerge } from "tailwind-merge";
-import DOMPurify from "isomorphic-dompurify";
 import { Post } from "@/app/_types/Post";
-import { dateFormat } from "../utils/dateFormat";
+import { dateFormat } from "../_utils/dateFormat";
 import { supabase } from "@/utils/supabase";
 import { useEffect, useState } from "react";
 import { FaFilePdf } from "react-icons/fa";
 import { PostSummaryType } from "../_types/PostSummaryType";
 import { PostGetApiResponse } from "../_types/PostGetApiResponse";
 import PostSummary from "./PostSummary";
+import { renderContentWithMath } from "../_utils/renderContentWithMath";
+import "katex/dist/katex.min.css";
 
 type Props = {
   post: Post;
@@ -18,11 +19,9 @@ type Props = {
 
 const PostDetail: React.FC<Props> = (props) => {
   const { post } = props;
-  const safeHTML = DOMPurify.sanitize(post.content, {
-    ALLOWED_TAGS: ["b", "strong", "i", "em", "u", "br"],
-  });
 
-  // console.log(`post: ${JSON.stringify(post, null, 2)}`);
+  const contentWithMath = renderContentWithMath(post.content);
+
   const coverImageBucketName = "cover_image";
   const imagePublicUrlRes = post.coverImage
     ? supabase.storage
@@ -34,7 +33,6 @@ const PostDetail: React.FC<Props> = (props) => {
   const pdfPublicUrlRes = post.bodyPdfKey
     ? supabase.storage.from(bodyPdfBucketName).getPublicUrl(post.bodyPdfKey)
     : undefined;
-  // console.log(`pdfPublicUrlRes: ${JSON.stringify(pdfPublicUrlRes, null, 2)}`);
 
   const [relatedPosts, setRelatedPosts] = useState<PostSummaryType[]>([]);
 
@@ -56,26 +54,6 @@ const PostDetail: React.FC<Props> = (props) => {
             ...category.category,
           })),
         }));
-        console.log(`data: ${JSON.stringify(data, null, 2)}`);
-        console.log(
-          `post.categories: ${JSON.stringify(
-            post.categories.map((pc) => pc.id),
-            null,
-            2
-          )}`
-        );
-        for (const p of data) {
-          console.log(`p: ${JSON.stringify(p, null, 2)}`);
-          console.log(
-            `p.categories: ${JSON.stringify(
-              p.categories.some((c) =>
-                post.categories.map((pc) => pc.id).includes(c.id)
-              ),
-              null,
-              2
-            )}`
-          );
-        }
         const filteredData = data.filter(
           (p) =>
             p.id !== post.id &&
@@ -83,9 +61,9 @@ const PostDetail: React.FC<Props> = (props) => {
               post.categories.map((pc) => pc.id).includes(c.id)
             )
         );
-        console.log(`filteredData: ${JSON.stringify(filteredData, null, 2)}`);
+        // console.log(`filteredData: ${JSON.stringify(filteredData, null, 2)}`);
         setRelatedPosts(filteredData);
-        console.log(`relatedPosts: ${JSON.stringify(filteredData, null, 2)}`);
+        // console.log(`relatedPosts: ${JSON.stringify(filteredData, null, 2)}`);
       } catch (error) {
         const errorMsg =
           error instanceof Error
@@ -145,7 +123,7 @@ const PostDetail: React.FC<Props> = (props) => {
           />
         </div>
       )}
-      <div dangerouslySetInnerHTML={{ __html: safeHTML }} />
+      <div className="prose max-w-none">{contentWithMath}</div>
       <div className="text-lg font-bold">関連記事</div>
       <div className="grid grid-cols-1 gap-2">
         {relatedPosts.length ? (

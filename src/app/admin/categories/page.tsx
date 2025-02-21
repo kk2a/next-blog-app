@@ -9,12 +9,15 @@ import Link from "next/link";
 import CategorySearch from "@/app/_components/CategorySearch";
 import LoadingPopup from "@/app/_components/LoadingPopup";
 import { useAuth } from "@/app/_hooks/useAuth";
+import Pagination from "@/app/_components/Pagination";
 
 // カテゴリの編集・削除のページ
 const Page: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [fetchErrorMsg, setFetchErrorMsg] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 5;
 
   // ページの移動に使用するフック
   const router = useRouter();
@@ -133,6 +136,17 @@ const Page: React.FC = () => {
     }
   };
 
+  const getCurrentPageItems = () => {
+    if (!categories) return null;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return categories.slice(startIndex, endIndex);
+  };
+
+  const totalPages = categories
+    ? Math.ceil(categories.length / itemsPerPage)
+    : 0;
+
   // カテゴリの一覧を取得中の画面
   if (isLoading) {
     return <Loading />;
@@ -160,37 +174,38 @@ const Page: React.FC = () => {
         setSearchQuery={setSearchQuery}
         handleSearch={handleSearch}
       />
-      <div className="space-y-3">
-        {filteredCategories ? (
-          filteredCategories.map((category) => (
-            <div
-              key={category.id}
-              className="rounded-md border border-slate-400 p-3"
-            >
-              <div className="flex items-center justify-between">
+      <div className="space-y-4">
+        {getCurrentPageItems()?.map((category) => (
+          <div
+            key={category.id}
+            className="rounded-md border border-slate-400 p-3"
+          >
+            <div className="flex items-center justify-between">
+              <Link href={`/admin/categories/${category.id}`}>
+                <span className="font-bold">{category.name}</span>
+              </Link>
+              <div className="flex space-x-2">
                 <Link href={`/admin/categories/${category.id}`}>
-                  <span className="font-bold">{category.name}</span>
-                </Link>
-                <div className="flex space-x-2">
-                  <Link href={`/admin/categories/${category.id}`}>
-                    <button className="rounded bg-blue-500 px-3 py-1 text-white">
-                      編集
-                    </button>
-                  </Link>
-                  <button
-                    className="rounded bg-red-500 px-3 py-1 text-white"
-                    onClick={() => handleDelete(category.id)}
-                  >
-                    削除
+                  <button className="rounded bg-blue-500 px-3 py-1 text-white">
+                    編集
                   </button>
-                </div>
+                </Link>
+                <button
+                  className="rounded bg-red-500 px-3 py-1 text-white"
+                  onClick={() => handleDelete(category.id)}
+                >
+                  削除
+                </button>
               </div>
             </div>
-          ))
-        ) : (
-          <div className="text-gray-500">
-            （カテゴリは1個も作成されていません）
           </div>
+        ))}
+        {categories && categories.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
         )}
       </div>
     </main>

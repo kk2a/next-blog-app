@@ -94,7 +94,7 @@ export const PUT = async (
           updatedAt: new Date(),
         },
       });
-      console.log(post);
+      // console.log(post);
 
       await prisma.postCategory.deleteMany({
         where: {

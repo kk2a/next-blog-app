@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
 import SortButton from "@/app/_components/SortButton";
 import { useAuth } from "@/app/_hooks/useAuth";
+import Pagination from "@/app/_components/Pagination";
 
 const AdminPostsPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -26,11 +27,13 @@ const AdminPostsPage = () => {
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [isAscending, setIsAscending] = useState<boolean>(true);
   const [searchHasPdf, setSearchHasPdf] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 5;
 
   const { token } = useAuth();
 
   useEffect(() => {
-    console.log("useEffect");
+    // console.log("useEffect");
     // 投稿記事のデータを取得する関数
     const fetchPosts = async () => {
       const response = await fetch("/api/posts");
@@ -141,6 +144,17 @@ const AdminPostsPage = () => {
     setIsAscending(!isAscending);
   };
 
+  const getCurrentPageItems = () => {
+    if (!filteredPosts) return null;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredPosts.slice(startIndex, endIndex);
+  };
+
+  const totalPages = filteredPosts
+    ? Math.ceil(filteredPosts.length / itemsPerPage)
+    : 0;
+
   return (
     <main>
       <div className="mb-4 text-2xl font-bold">投稿記事の一覧</div>
@@ -170,17 +184,20 @@ const AdminPostsPage = () => {
       <div className="mb-4">
         <SortButton isAscending={isAscending} handleSort={handleSort} />
       </div>
-      <div className="space-y-3">
-        {filteredPosts ? (
-          filteredPosts.map((post) => (
-            <PostSummaryEditorial
-              key={post.id}
-              post={post}
-              onDelete={handleDelete}
-            />
-          ))
-        ) : (
-          <div className="text-gray-500">（記事は1個も作成されていません）</div>
+      <div className="space-y-4">
+        {getCurrentPageItems()?.map((post) => (
+          <PostSummaryEditorial
+            key={post.id}
+            post={post}
+            onDelete={handleDelete}
+          />
+        ))}
+        {filteredPosts && filteredPosts.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
         )}
       </div>
     </main>

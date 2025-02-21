@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 
 import { twMerge } from "tailwind-merge";
 import { Category } from "@/app/_types/Category";
-import { validateCategoryName } from "@/app/utils/validateCategoryName";
+import { validateCategoryName } from "@/app/_utils/validateCategoryName";
 import { CategoryApiResponse } from "@/app/_types/CategoryApiResponse";
 import Loading from "@/app/_components/Loading";
 import LoadingPopup from "@/app/_components/LoadingPopup";

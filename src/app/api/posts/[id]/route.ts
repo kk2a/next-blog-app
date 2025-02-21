@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
-import { postSelectOptions } from "@/app/config/postSelectOptions";
+import { postSelectOptions } from "@/app/_config/postSelectOptions";
 import { PostGetApiResponse } from "@/app/_types/PostGetApiResponse";
 
 export const revalidate = 0;

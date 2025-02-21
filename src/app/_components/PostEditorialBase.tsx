@@ -3,7 +3,7 @@ import { SelectableCategory } from "@/app/_types/SelectableCategory";
 import { useRef, useState, useEffect, ChangeEvent } from "react";
 import Image from "next/image";
 import { supabase } from "@/utils/supabase";
-import { calculateMD5Hash } from "@/app/utils/calculateMD5Hash";
+import { calculateMD5Hash } from "@/app/_utils/calculateMD5Hash";
 
 type Props = {
   nowTitle: string;
