@@ -6,8 +6,7 @@ Next.jsを用いた個人ブログ専用のアプリです．情報科学分野�
 
 情報科学分野の解説記事を公開したいという思いから開発をスタートしました．既存の技術ブログプラットフォームでは自分の求める自由度が得られなかったため，特にLaTeXで書いた数学的な内容をPDF形式で添付できる機能など，独自の要件を満たすブログシステムを構築することにしました．
 
-公開URL: [https://kk2a-blog-app-demo.vercel.app/](hhttps://kk2
-a-blog-app-demo.vercel.app/)
+公開URL: [https://kk2a-blog-app-demo.vercel.app/](https://kk2a-blog-app-demo.vercel.app/)
 
 ## 特徴と機能の説明
 
